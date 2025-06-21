@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import Head from "next/head";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -148,16 +147,21 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
     creator: "@docsauraflow",
   },
-  alternates: {
-    canonical: "https://docsauraflow.com",
-  },
-  category: "technology",
-  classification: "Business Tools",
   other: {
     "google-site-verification": "your-google-verification-code",
     "msvalidate.01": "your-bing-verification-code",
     "yandex-verification": "your-yandex-verification-code",
   },
+  verification: {
+    google: "your-google-verification-code",
+    yandex: "your-yandex-verification-code",
+    yahoo: "your-yahoo-verification-code",
+  },
+  alternates: {
+    canonical: "https://docsauraflow.com",
+  },
+  category: "technology",
+  classification: "Business Tools",
 };
 
 export default function RootLayout({
@@ -167,15 +171,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Head>
-        <meta name="description" content="DocsAuraFlow – Your intelligent document and image processing assistant. Free online tools for PDF conversion, AI image upscaling, background removal, resume building, and more." />
-        <meta name="keywords" content="DocsAuraFlow, docsauraflow, PDF to Word, Word to PDF, AI upscaler, background remover, resume builder, free online tools, document converter, image converter" />
-        <meta name="author" content="DocsAuraFlow" />
-        <meta name="robots" content="index, follow" />
-        <meta name="googlebot" content="index, follow" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#2563eb" />
-        
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {/* Structured Data for Organization */}
         <script
           type="application/ld+json"
@@ -238,7 +236,10 @@ export default function RootLayout({
             })
           }}
         />
+
+        {children}
         
+        {/* Google AdSense */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3383149380786147"
@@ -267,11 +268,6 @@ export default function RootLayout({
             gtag('config', 'GA_MEASUREMENT_ID');
           `}
         </Script>
-      </Head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
       </body>
     </html>
   );
