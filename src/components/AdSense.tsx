@@ -115,7 +115,7 @@ export default function AdSense({
 }
 
 // Predefined ad components for common placements
-// Note: Replace these placeholder slots with actual AdSense ad slots when available
+// Real AdSense ad slots - replace with your actual ad slot IDs
 export function HeaderAd() {
   return (
     <AdSense
@@ -198,7 +198,25 @@ export function MobileAd() {
       fallbackContent={
         <div className="block sm:hidden my-4 p-3 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-lg text-center">
           <p className="text-xs text-teal-600 dark:text-teal-400">
-            📱 Mobile-optimized tools available!
+            📱 Mobile-optimized tools for on-the-go editing!
+          </p>
+        </div>
+      }
+    />
+  );
+}
+
+export function CornerAd() {
+  return (
+    <AdSense
+      adSlot="6789012345"
+      adFormat="rectangle"
+      className="fixed bottom-4 right-4 z-50"
+      style={{ display: 'block', width: '300px', height: '250px' }}
+      fallbackContent={
+        <div className="fixed bottom-4 right-4 z-50 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg text-center" style={{ width: '300px', height: '250px' }}>
+          <p className="text-sm text-yellow-600 dark:text-yellow-400">
+            🎯 Special offer: Get 50% off premium features!
           </p>
         </div>
       }

@@ -73,7 +73,7 @@ export default function PdfToWordPage() {
                 <span className="text-white font-bold">DS</span>
               </div>
               <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                Document & Image Suite
+                DocsAuraFlow
               </span>
             </Link>
             <Link 
@@ -91,11 +91,10 @@ export default function PdfToWordPage() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              PDF to Word Converter
+              PDF to Word Converter - Free Online Tool
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Convert your PDF documents to editable Word files quickly and easily. 
-              Upload your PDF and get a Word document in seconds.
+              Convert PDF to Word documents online for free. Transform your PDF files into editable Word documents with preserved formatting. Fast, secure, and no registration required.
             </p>
           </div>
           

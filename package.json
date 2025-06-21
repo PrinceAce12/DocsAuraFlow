@@ -20,7 +20,9 @@
     "docker:compose:down": "docker-compose down",
     "health": "curl -f http://localhost:3000/api/health || echo 'Health check failed'",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "seo:check": "npm run build && npm run start & sleep 10 && curl -s http://localhost:3000/sitemap.xml | head -20 && curl -s http://localhost:3000/robots.txt && pkill -f 'next start'",
+    "seo:validate": "npm run build && npx next-sitemap && echo 'Sitemap generated successfully'"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.7",

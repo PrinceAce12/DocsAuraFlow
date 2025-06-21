@@ -45,8 +45,11 @@ interface ResumeData {
 
 function formatDate(dateString: string): string {
   if (!dateString) return ''
-  const date = new Date(dateString + '-01')
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long' 
+  })
 }
 
 function addModernTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
@@ -207,13 +210,14 @@ function addModernTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
 function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
   const { personalInfo, experiences, education, skills } = data
   
-  // Header with name and contact info
+  // Header
   doc.fillColor('#000000')
   doc.fontSize(24)
   doc.font('Helvetica-Bold')
-  doc.text(personalInfo.fullName.toUpperCase(), 50, 50, { align: 'center' })
+  doc.text(personalInfo.fullName, 50, 50)
   
-  doc.fontSize(11)
+  doc.fillColor('#666666')
+  doc.fontSize(10)
   doc.font('Helvetica')
   
   let yPos = 80
@@ -223,23 +227,19 @@ function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
     personalInfo.location
   ].filter(Boolean)
   
-  doc.text(contactInfo.join(' | '), 50, yPos, { align: 'center' })
-  
-  // Add line under header
-  doc.moveTo(50, 100)
-     .lineTo(550, 100)
-     .stroke()
-  
-  yPos = 120
+  doc.text(contactInfo.join(' | '), 50, yPos)
+  yPos += 30
   
   // Professional Summary
   if (personalInfo.summary) {
+    doc.fillColor('#000000')
     doc.fontSize(12)
     doc.font('Helvetica-Bold')
-    doc.text('OBJECTIVE', 50, yPos)
-    yPos += 20
+    doc.text('SUMMARY', 50, yPos)
+    yPos += 15
     
-    doc.fontSize(11)
+    doc.fillColor('#333333')
+    doc.fontSize(10)
     doc.font('Helvetica')
     doc.text(personalInfo.summary, 50, yPos, { width: 500, align: 'justify' })
     yPos += doc.heightOfString(personalInfo.summary, { width: 500 }) + 20
@@ -247,6 +247,7 @@ function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
   
   // Work Experience
   if (experiences.length > 0) {
+    doc.fillColor('#000000')
     doc.fontSize(12)
     doc.font('Helvetica-Bold')
     doc.text('EXPERIENCE', 50, yPos)
@@ -258,27 +259,33 @@ function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
         yPos = 50
       }
       
+      doc.fillColor('#000000')
       doc.fontSize(11)
       doc.font('Helvetica-Bold')
       doc.text(exp.position, 50, yPos)
       
+      doc.fillColor('#666666')
+      doc.fontSize(10)
+      doc.font('Helvetica')
       const dateRange = `${formatDate(exp.startDate)} - ${exp.current ? 'Present' : formatDate(exp.endDate)}`
       doc.text(dateRange, 400, yPos, { width: 150, align: 'right' })
-      yPos += 15
+      yPos += 12
       
-      doc.fontSize(11)
-      doc.font('Helvetica-Oblique')
+      doc.fillColor('#333333')
+      doc.fontSize(10)
+      doc.font('Helvetica-Bold')
       doc.text(exp.company, 50, yPos)
-      yPos += 15
+      yPos += 12
       
       if (exp.description) {
-        doc.fontSize(10)
+        doc.fillColor('#333333')
+        doc.fontSize(9)
         doc.font('Helvetica')
         doc.text(exp.description, 50, yPos, { width: 500, align: 'justify' })
-        yPos += doc.heightOfString(exp.description, { width: 500 }) + 15
+        yPos += doc.heightOfString(exp.description, { width: 500 }) + 10
       }
       
-      yPos += 10
+      yPos += 8
     })
   }
   
@@ -289,6 +296,7 @@ function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
       yPos = 50
     }
     
+    doc.fillColor('#000000')
     doc.fontSize(12)
     doc.font('Helvetica-Bold')
     doc.text('EDUCATION', 50, yPos)
@@ -300,18 +308,23 @@ function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
         yPos = 50
       }
       
+      doc.fillColor('#000000')
       doc.fontSize(11)
       doc.font('Helvetica-Bold')
       doc.text(`${edu.degree} in ${edu.field}`, 50, yPos)
       
+      doc.fillColor('#666666')
+      doc.fontSize(10)
+      doc.font('Helvetica')
       const dateRange = `${formatDate(edu.startDate)} - ${edu.current ? 'Present' : formatDate(edu.endDate)}`
       doc.text(dateRange, 400, yPos, { width: 150, align: 'right' })
-      yPos += 15
+      yPos += 12
       
-      doc.fontSize(11)
+      doc.fillColor('#333333')
+      doc.fontSize(10)
       doc.font('Helvetica')
       doc.text(edu.institution, 50, yPos)
-      yPos += 25
+      yPos += 20
     })
   }
   
@@ -322,13 +335,15 @@ function addClassicTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
       yPos = 50
     }
     
+    doc.fillColor('#000000')
     doc.fontSize(12)
     doc.font('Helvetica-Bold')
     doc.text('SKILLS', 50, yPos)
     yPos += 20
     
-    const allSkills = skills.map(skill => skill.name).join(', ')
-    doc.fontSize(11)
+    const allSkills = skills.map(skill => `${skill.name} (${skill.level})`).join(', ')
+    doc.fillColor('#333333')
+    doc.fontSize(10)
     doc.font('Helvetica')
     doc.text(allSkills, 50, yPos, { width: 500 })
   }
@@ -450,43 +465,42 @@ function addMinimalTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
 function addCreativeTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
   const { personalInfo, experiences, education, skills } = data
   
-  // Creative header with colored background
-  doc.rect(0, 0, 600, 120)
+  // Creative header with colored accent
   doc.fillColor('#4f46e5')
+  doc.rect(0, 0, 600, 100)
   doc.fill()
   
-  // Header with name and contact info
   doc.fillColor('#ffffff')
-  doc.fontSize(28)
+  doc.fontSize(32)
   doc.font('Helvetica-Bold')
   doc.text(personalInfo.fullName, 50, 30)
   
-  doc.fontSize(11)
+  doc.fontSize(12)
   doc.font('Helvetica')
   
+  let yPos = 70
   const contactInfo = [
     personalInfo.email,
     personalInfo.phone,
     personalInfo.location
   ].filter(Boolean)
   
-  doc.text(contactInfo.join(' • '), 50, 70)
-  
-  let yPos = 150
+  doc.text(contactInfo.join(' • '), 50, yPos)
+  yPos = 120
   
   // Professional Summary
   if (personalInfo.summary) {
     doc.fillColor('#4f46e5')
     doc.fontSize(14)
     doc.font('Helvetica-Bold')
-    doc.text('About Me', 50, yPos)
+    doc.text('About', 50, yPos)
     yPos += 20
     
-    doc.fillColor('#374151')
+    doc.fillColor('#1f2937')
     doc.fontSize(11)
     doc.font('Helvetica')
     doc.text(personalInfo.summary, 50, yPos, { width: 500, align: 'justify' })
-    yPos += doc.heightOfString(personalInfo.summary, { width: 500 }) + 25
+    yPos += doc.heightOfString(personalInfo.summary, { width: 500 }) + 30
   }
   
   // Work Experience
@@ -494,7 +508,7 @@ function addCreativeTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
     doc.fillColor('#4f46e5')
     doc.fontSize(14)
     doc.font('Helvetica-Bold')
-    doc.text('Work Experience', 50, yPos)
+    doc.text('Experience', 50, yPos)
     yPos += 20
     
     experiences.forEach((exp) => {
@@ -503,7 +517,6 @@ function addCreativeTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
         yPos = 50
       }
       
-      // Add a small colored circle as bullet point
       doc.circle(50, yPos + 5, 3)
       doc.fillColor('#4f46e5')
       doc.fill()
@@ -522,12 +535,12 @@ function addCreativeTemplate(doc: PDFKit.PDFDocument, data: ResumeData) {
       
       doc.fillColor('#4f46e5')
       doc.fontSize(11)
-      doc.font('Helvetica-Oblique')
+      doc.font('Helvetica')
       doc.text(exp.company, 65, yPos)
       yPos += 15
       
       if (exp.description) {
-        doc.fillColor('#4b5563')
+        doc.fillColor('#374151')
         doc.fontSize(10)
         doc.font('Helvetica')
         doc.text(exp.description, 65, yPos, { width: 485, align: 'justify' })

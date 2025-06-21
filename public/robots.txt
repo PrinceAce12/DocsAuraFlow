@@ -2,20 +2,23 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://documentsuite.com/sitemap.xml
+Sitemap: https://docsauraflow.com/sitemap.xml
 
-# Disallow any admin or API routes from indexing
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin and API routes
 Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 
-# Allow all document conversion tools
+# Allow important pages
 Allow: /pdf-to-word
 Allow: /word-to-pdf
 Allow: /text-to-word
 Allow: /image-converter
+Allow: /image-editor
 Allow: /ai-upscaler
 Allow: /remove-background
-Allow: /image-editor
 Allow: /resume-builder
 Allow: /pdf-form-filler

@@ -49,7 +49,7 @@ export default function Home() {
                 <span className="text-white font-bold text-xl">DS</span>
               </div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Document & Image Suite
+                DocsAuraFlow
               </h1>
             </div>
             <div className="flex items-center space-x-4">
@@ -71,11 +71,11 @@ export default function Home() {
       <section className="py-20">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            All-in-One
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Digital Tools</span>
+            DocsAuraFlow
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> - Free Online Tools</span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12">
-            Convert documents, enhance images, remove backgrounds, and create professional resumes - all in one place, completely free.
+            Convert PDF to Word, enhance images with AI upscaler, remove backgrounds, create professional resumes, and more - all free online tools in one place.
           </p>
           
           {/* Hero Ad */}

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { Upload, Download, RotateCw, RotateCcw, Crop, Sliders, Palette, RefreshCw, Image as ImageIcon } from 'lucide-react'
+import { HeaderAd, InContentAd, FooterAd } from '@/components/AdSense'
 
 interface EditOptions {
   brightness?: number
@@ -186,6 +187,9 @@ export default function ImageEditor() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8">
+      {/* Header Ad */}
+      <HeaderAd />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
@@ -193,6 +197,11 @@ export default function ImageEditor() {
             <h1 className="text-4xl font-bold text-gray-900">Image Editor</h1>
           </div>
           <p className="text-xl text-gray-600">Edit, enhance, and transform your images with professional tools</p>
+        </div>
+
+        {/* In-content Ad */}
+        <div className="mb-8">
+          <InContentAd />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -369,7 +378,7 @@ export default function ImageEditor() {
                           <option value="webp">WebP</option>
                         </select>
                       </div>
-                      {format === 'jpeg' || format === 'webp' ? (
+                      {format === 'jpeg' && (
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Quality: {quality}%
@@ -383,7 +392,7 @@ export default function ImageEditor() {
                             className="w-full"
                           />
                         </div>
-                      ) : null}
+                      )}
                     </div>
                   </div>
 
@@ -470,12 +479,17 @@ export default function ImageEditor() {
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 mb-3">Edited</h3>
                     <div className="border border-gray-200 rounded-lg p-2 bg-gray-50">
-                      {editedPreview && (
+                      {editedPreview ? (
                         <img 
                           src={editedPreview} 
                           alt="Edited" 
                           className="w-full h-auto max-h-96 object-contain mx-auto"
                         />
+                      ) : (
+                        <div className="text-center py-16 text-gray-400">
+                          <ImageIcon className="h-16 w-16 mx-auto mb-2" />
+                          <p>Apply edits to see preview</p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -483,6 +497,11 @@ export default function ImageEditor() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Footer Ad */}
+        <div className="mt-12">
+          <FooterAd />
         </div>
       </div>
     </div>

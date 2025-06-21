@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Download, User, MapPin, Phone, Mail, Briefcase, GraduationCap, Award, Plus, Trash2, Eye } from 'lucide-react'
+import { HeaderAd, InContentAd, FooterAd } from '@/components/AdSense'
 
 interface PersonalInfo {
   fullName: string
@@ -165,6 +166,9 @@ export default function ResumeBuilder() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4">
+      {/* Header Ad */}
+      <HeaderAd />
+      
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
@@ -173,6 +177,11 @@ export default function ResumeBuilder() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Create a professional resume with our easy-to-use builder. Choose from modern templates and download as PDF.
           </p>
+        </div>
+
+        {/* In-content Ad */}
+        <div className="mb-8">
+          <InContentAd />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -465,17 +474,25 @@ export default function ResumeBuilder() {
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-4">Choose Template</h3>
               <div className="space-y-3">
-                {['modern', 'classic', 'minimal', 'creative'].map((temp) => (
-                  <label key={temp} className="flex items-center cursor-pointer">
+                {[
+                  { value: 'modern', label: 'Modern', description: 'Clean and professional' },
+                  { value: 'classic', label: 'Classic', description: 'Traditional format' },
+                  { value: 'minimal', label: 'Minimal', description: 'Simple and elegant' },
+                  { value: 'creative', label: 'Creative', description: 'Unique and stylish' }
+                ].map((temp) => (
+                  <label key={temp.value} className="flex items-start cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition-colors">
                     <input
                       type="radio"
                       name="template"
-                      value={temp}
-                      checked={template === temp}
+                      value={temp.value}
+                      checked={template === temp.value}
                       onChange={(e) => setTemplate(e.target.value)}
-                      className="mr-3"
+                      className="mr-3 mt-1"
                     />
-                    <span className="capitalize font-medium">{temp}</span>
+                    <div>
+                      <span className="capitalize font-medium text-gray-900">{temp.label}</span>
+                      <p className="text-sm text-gray-500">{temp.description}</p>
+                    </div>
                   </label>
                 ))}
               </div>
@@ -504,6 +521,11 @@ export default function ResumeBuilder() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Footer Ad */}
+        <div className="mt-12">
+          <FooterAd />
         </div>
       </div>
     </div>
