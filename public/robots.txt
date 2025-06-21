@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://documentsuite.com/sitemap.xml
+
+# Disallow any admin or API routes from indexing
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Allow all document conversion tools
+Allow: /pdf-to-word
+Allow: /word-to-pdf
+Allow: /text-to-word
+Allow: /image-converter
+Allow: /ai-upscaler
+Allow: /remove-background
+Allow: /image-editor
+Allow: /resume-builder
+Allow: /pdf-form-filler

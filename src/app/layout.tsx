@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://documentsuite.com'),
   title: {
     default: "Document & Image Suite - Free Online Tools",
     template: "%s | Document & Image Suite",

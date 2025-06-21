@@ -1,0 +1,251 @@
+'use client';
+
+import React, { useState } from 'react';
+import { FileText, Download, Upload, Loader2 } from 'lucide-react';
+import { HeaderAd, InContentAd, FooterAd } from '@/components/AdSense';
+import Link from 'next/link';
+
+export default function TextToWordPage() {
+  const [textContent, setTextContent] = useState('');
+  const [isConverting, setIsConverting] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [filename, setFilename] = useState('document.docx');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleTextConversion = async () => {
+    if (!textContent.trim()) {
+      setError('Please enter some text to convert.');
+      return;
+    }
+
+    setIsConverting(true);
+    setError(null);
+    setDownloadUrl(null);
+
+    try {
+      const response = await fetch('/api/convert/text-to-word', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: textContent,
+          filename: filename.replace(/\.[^/.]+$/, '') // Remove extension if provided
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Conversion failed');
+      }
+
+      // Create blob from response
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setDownloadUrl(url);
+
+    } catch (err) {
+      console.error('Conversion error:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setIsConverting(false);
+    }
+  };
+
+  const handleDownload = () => {
+    if (downloadUrl) {
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename.endsWith('.docx') ? filename : `${filename}.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleReset = () => {
+    setTextContent('');
+    setDownloadUrl(null);
+    setError(null);
+    setFilename('document.docx');
+    if (downloadUrl) {
+      URL.revokeObjectURL(downloadUrl);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header Ad */}
+      <HeaderAd />
+      
+      {/* Header */}
+      <header className="border-b border-white/20 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">DS</span>
+              </div>
+              <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                Document & Image Suite
+              </span>
+            </Link>
+            <Link 
+              href="/"
+              className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              ← Back to Home
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <FileText className="h-12 w-12 text-blue-600 dark:text-blue-400 mr-3" />
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+                Text to Word Converter
+              </h1>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Convert your text content into professional Word documents
+            </p>
+          </div>
+
+          {/* In-content Ad */}
+          <div className="mb-8">
+            <InContentAd />
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <div className="mb-6">
+              <label htmlFor="filename" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Document Filename
+              </label>
+              <input
+                type="text"
+                id="filename"
+                value={filename}
+                onChange={(e) => setFilename(e.target.value)}
+                placeholder="Enter filename (e.g., my-document)"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+              />
+            </div>
+
+            <div className="mb-6">
+              <label htmlFor="textContent" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Text Content
+              </label>
+              <textarea
+                id="textContent"
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                placeholder="Enter or paste your text content here..."
+                rows={12}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-vertical"
+              />
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Characters: {textContent.length} | Words: {textContent.trim().split(/\s+/).filter(word => word.length > 0).length}
+              </div>
+            </div>
+
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                <p className="text-red-600 dark:text-red-400">{error}</p>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={handleTextConversion}
+                disabled={isConverting || !textContent.trim()}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              >
+                {isConverting ? (
+                  <React.Fragment>
+                    <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                    Converting...
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <Upload className="h-5 w-5 mr-2" />
+                    Convert to Word
+                  </React.Fragment>
+                )}
+              </button>
+
+              {downloadUrl && (
+                <button
+                  onClick={handleDownload}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                >
+                  <Download className="h-5 w-5 mr-2" />
+                  Download Word Document
+                </button>
+              )}
+
+              <button
+                onClick={handleReset}
+                className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Features
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Rich Text Formatting</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Preserves paragraph structure and basic formatting
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Custom Filename</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Choose your own filename for the generated document
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Word Count</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Real-time character and word count display
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                <div>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Instant Download</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    Download your Word document immediately after conversion
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Ad */}
+          <div className="mt-12">
+            <FooterAd />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
