@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { Upload, Download, RotateCw, RotateCcw, Crop, Sliders, Palette, RefreshCw, Image as ImageIcon } from 'lucide-react'
 import { HeaderAd, InContentAd, FooterAd } from '@/components/AdSense'
 
@@ -110,11 +110,9 @@ export default function ImageEditor() {
     }
   }
 
-  const applyEdits = async () => {
-    if (!selectedFile) return
-
-    setIsProcessing(true)
-    setError(null)
+  // Real-time preview update function
+  const updatePreview = useCallback(async () => {
+    if (!selectedFile || !originalPreview) return
 
     try {
       const formData = new FormData()
@@ -142,37 +140,36 @@ export default function ImageEditor() {
         body: formData,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to edit image')
-      }
-
-      // Get the edited image blob
-      const blob = await response.blob()
-      const url = URL.createObjectURL(blob)
-      
-      setEditedPreview(url)
-      setDownloadUrl(url)
-      
-      // Get filename from response headers
-      const contentDisposition = response.headers.get('content-disposition')
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename="(.+)"/)
-        if (match) {
-          setDownloadFilename(match[1])
+      if (response.ok) {
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        setEditedPreview(url)
+        setDownloadUrl(url)
+        
+        // Get filename from response headers
+        const contentDisposition = response.headers.get('content-disposition')
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/)
+          if (match) {
+            setDownloadFilename(match[1])
+          }
+        } else {
+          const extension = format === 'jpeg' ? 'jpg' : format
+          setDownloadFilename(`edited-${selectedFile.name.replace(/\.[^/.]+$/, '')}.${extension}`)
         }
-      } else {
-        const extension = format === 'jpeg' ? 'jpg' : format
-        setDownloadFilename(`edited-${selectedFile.name.replace(/\.[^/.]+$/, '')}.${extension}`)
       }
-
-    } catch (err) {
-      console.error('Error editing image:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred while editing the image')
-    } finally {
-      setIsProcessing(false)
+    } catch (error) {
+      console.error('Error updating preview:', error)
     }
-  }
+  }, [selectedFile, originalPreview, brightness, contrast, saturation, rotation, blur, sharpen, grayscale, sepia, width, height, quality, format])
+
+  // Update preview when any edit control changes
+  useEffect(() => {
+    if (selectedFile && originalPreview) {
+      const timeoutId = setTimeout(updatePreview, 500) // Debounce updates
+      return () => clearTimeout(timeoutId)
+    }
+  }, [updatePreview])
 
   const downloadImage = () => {
     if (downloadUrl && downloadFilename) {
@@ -399,29 +396,12 @@ export default function ImageEditor() {
                   {/* Action Buttons */}
                   <div className="space-y-3">
                     <button
-                      onClick={applyEdits}
-                      disabled={isProcessing}
-                      className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                      onClick={downloadImage}
+                      className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 font-medium transition-colors flex items-center justify-center"
                     >
-                      {isProcessing ? (
-                        <div className="flex items-center justify-center">
-                          <RefreshCw className="h-5 w-5 animate-spin mr-2" />
-                          Processing...
-                        </div>
-                      ) : (
-                        'Apply Edits'
-                      )}
+                      <Download className="h-5 w-5 mr-2" />
+                      Download Edited Image
                     </button>
-                    
-                    {downloadUrl && (
-                      <button
-                        onClick={downloadImage}
-                        className="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 font-medium transition-colors flex items-center justify-center"
-                      >
-                        <Download className="h-5 w-5 mr-2" />
-                        Download Edited Image
-                      </button>
-                    )}
                     
                     <button
                       onClick={resetToDefaults}

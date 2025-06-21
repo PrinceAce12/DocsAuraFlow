@@ -20,5 +20,4 @@ Allow: /image-converter
 Allow: /image-editor
 Allow: /ai-upscaler
 Allow: /remove-background
-Allow: /resume-builder
 Allow: /pdf-form-filler

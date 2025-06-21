@@ -26,15 +26,6 @@ export default function Home() {
         { name: "Background Remover", href: "/remove-background", desc: "Remove backgrounds with precision" },
         { name: "Image Editor", href: "/image-editor", desc: "Edit and customize your images" }
       ]
-    },
-    {
-      title: "Resume Builder",
-      description: "Create professional resumes with sleek designs",
-      icon: "📋",
-      tools: [
-        { name: "Resume Templates", href: "/resume-builder", desc: "Choose from modern templates" },
-        { name: "Custom Builder", href: "/resume-builder?mode=custom", desc: "Build from scratch" }
-      ]
     }
   ];
 

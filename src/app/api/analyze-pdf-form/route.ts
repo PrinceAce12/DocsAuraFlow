@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PDFDocument, PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup } from 'pdf-lib';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,45 +16,48 @@ export async function POST(request: NextRequest) {
 
     // Convert file to array buffer
     const arrayBuffer = await file.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-
-    // Dynamically import pdfjs-dist for server-side use
-    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
     
-    // Load PDF document
-    const loadingTask = pdfjsLib.getDocument(uint8Array);
-    const pdf = await loadingTask.promise;
-
+    // Load PDF document using pdf-lib
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const form = pdfDoc.getForm();
+    
+    // Get all form fields
+    const formFields = form.getFields();
+    
     const fields: Array<{ name: string; type: string; value: string }> = [];
 
-    // Iterate through all pages to find form fields
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const annotations = await page.getAnnotations();
+    // Process each form field
+    for (const field of formFields) {
+      try {
+        const fieldName = field.getName();
+        let fieldType = 'text';
+        let fieldValue = '';
 
-      for (const annotation of annotations) {
-        // Check if annotation is a form field
-        if (annotation.subtype === 'Widget' && annotation.fieldName) {
-          let fieldType = 'text';
-          
-          // Determine field type based on annotation properties
-          if (annotation.fieldType === 'Tx') {
-            fieldType = annotation.multiLine ? 'textarea' : 'text';
-          } else if (annotation.fieldType === 'Ch') {
-            fieldType = 'select';
-          } else if (annotation.fieldType === 'Btn') {
-            fieldType = annotation.checkBox ? 'checkbox' : 'radio';
-          }
-
-          // Only add text-based fields for now
-          if (fieldType === 'text' || fieldType === 'textarea') {
-            fields.push({
-              name: annotation.fieldName,
-              type: fieldType,
-              value: annotation.fieldValue || ''
-            });
-          }
+        // Determine field type and get current value
+        if (field instanceof PDFTextField) {
+          fieldType = 'text';
+          fieldValue = field.getText() || '';
+        } else if (field instanceof PDFCheckBox) {
+          fieldType = 'checkbox';
+          fieldValue = field.isChecked() ? 'true' : 'false';
+        } else if (field instanceof PDFDropdown) {
+          fieldType = 'select';
+          const selected = field.getSelected();
+          fieldValue = Array.isArray(selected) ? selected[0] || '' : selected || '';
+        } else if (field instanceof PDFRadioGroup) {
+          fieldType = 'radio';
+          const selected = field.getSelected();
+          fieldValue = Array.isArray(selected) ? selected[0] || '' : selected || '';
         }
+
+        fields.push({
+          name: fieldName,
+          type: fieldType,
+          value: fieldValue
+        });
+      } catch (error) {
+        console.warn(`Error processing field:`, error);
+        // Continue with other fields
       }
     }
 
@@ -61,6 +65,13 @@ export async function POST(request: NextRequest) {
     const uniqueFields = fields.filter((field, index, self) => 
       index === self.findIndex(f => f.name === field.name)
     );
+
+    if (uniqueFields.length === 0) {
+      return NextResponse.json({ 
+        error: 'No fillable form fields found in this PDF. Please ensure the PDF contains form fields.',
+        fields: []
+      });
+    }
 
     return NextResponse.json({ 
       fields: uniqueFields,
@@ -70,7 +81,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error analyzing PDF form:', error);
     return NextResponse.json(
-      { error: 'Failed to analyze PDF form' },
+      { error: 'Failed to analyze PDF form. Please ensure the PDF contains fillable form fields.' },
       { status: 500 }
     );
   }

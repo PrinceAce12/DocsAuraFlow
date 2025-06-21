@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sharp from 'sharp'
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,171 +20,99 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 10MB' }, { status: 400 })
     }
 
+    // Convert file to base64
     const buffer = Buffer.from(await file.arrayBuffer())
+    const base64Image = buffer.toString('base64')
+    const dataUrl = `data:${file.type};base64,${base64Image}`
 
-    try {
-      // Get image metadata
-      const metadata = await sharp(buffer).metadata()
-      
-      if (!metadata.width || !metadata.height) {
-        return NextResponse.json({ error: 'Invalid image file' }, { status: 400 })
-      }
+    // Use Replicate API for AI-powered background removal
+    const replicateApiToken = process.env.REPLICATE_API_TOKEN
+    
+    if (!replicateApiToken) {
+      return NextResponse.json({ error: 'AI background removal service not configured' }, { status: 500 })
+    }
 
-      // Enhanced background removal using multiple techniques
-      const { width, height } = metadata
-      
-      // Convert to RGBA format first
-      const rgbaBuffer = await sharp(buffer)
-        .ensureAlpha()
-        .raw()
-        .toBuffer()
+    // Use RemBG model for high-quality background removal
+    const response = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${replicateApiToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        version: "fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003",
+        input: {
+          image: dataUrl,
+          alpha_matting: true,
+          alpha_matting_foreground_threshold: 240,
+          alpha_matting_background_threshold: 10,
+          alpha_matting_erode_size: 10,
+        },
+      }),
+    })
 
-      const channels = 4 // RGBA
-      const newBuffer = Buffer.alloc(rgbaBuffer.length)
-      rgbaBuffer.copy(newBuffer)
+    if (!response.ok) {
+      throw new Error('Failed to start AI background removal process')
+    }
 
-      // Sample multiple areas to determine background color more accurately
-      const samplePoints = [
-        // Corners
-        { x: 0, y: 0 },
-        { x: width! - 1, y: 0 },
-        { x: 0, y: height! - 1 },
-        { x: width! - 1, y: height! - 1 },
-        // Edges
-        { x: Math.floor(width! / 2), y: 0 },
-        { x: Math.floor(width! / 2), y: height! - 1 },
-        { x: 0, y: Math.floor(height! / 2) },
-        { x: width! - 1, y: Math.floor(height! / 2) },
-        // Center area (likely background)
-        { x: Math.floor(width! / 4), y: Math.floor(height! / 4) },
-        { x: Math.floor(3 * width! / 4), y: Math.floor(height! / 4) },
-        { x: Math.floor(width! / 4), y: Math.floor(3 * height! / 4) },
-        { x: Math.floor(3 * width! / 4), y: Math.floor(3 * height! / 4) }
-      ]
-
-      // Calculate average background color from sample points
-      let avgR = 0, avgG = 0, avgB = 0, sampleCount = 0
-      for (const point of samplePoints) {
-        if (point.x >= 0 && point.x < width! && point.y >= 0 && point.y < height!) {
-          const index = (point.y * width! + point.x) * channels
-          avgR += rgbaBuffer[index]
-          avgG += rgbaBuffer[index + 1]
-          avgB += rgbaBuffer[index + 2]
-          sampleCount++
-        }
-      }
-      
-      if (sampleCount > 0) {
-        avgR /= sampleCount
-        avgG /= sampleCount
-        avgB /= sampleCount
-      }
-
-      // Enhanced threshold calculation based on image characteristics
-      const colorThreshold = Math.max(30, Math.min(80, (avgR + avgG + avgB) / 3 / 10))
-      const edgeThreshold = Math.max(20, Math.min(50, colorThreshold * 0.6))
-
-      // Process each pixel with improved algorithm
-      for (let y = 0; y < height!; y++) {
-        for (let x = 0; x < width!; x++) {
-          const index = (y * width! + x) * channels
-          const r = rgbaBuffer[index]
-          const g = rgbaBuffer[index + 1]
-          const b = rgbaBuffer[index + 2]
-
-          // Calculate color distance from background
-          const colorDistance = Math.sqrt(
-            Math.pow(r - avgR, 2) +
-            Math.pow(g - avgG, 2) +
-            Math.pow(b - avgB, 2)
-          )
-
-          // Enhanced edge detection with gradient analysis
-          let isEdge = false
-          let maxGradient = 0
-          
-          if (x > 0 && x < width! - 1 && y > 0 && y < height! - 1) {
-            // Check 8 neighboring pixels
-            const neighbors = [
-              { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
-              { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
-              { dx: -1, dy: -1 }, { dx: 1, dy: -1 },
-              { dx: -1, dy: 1 }, { dx: 1, dy: 1 }
-            ]
-
-            for (const { dx, dy } of neighbors) {
-              const nx = x + dx
-              const ny = y + dy
-              const neighborIndex = (ny * width! + nx) * channels
-              
-              const nR = rgbaBuffer[neighborIndex]
-              const nG = rgbaBuffer[neighborIndex + 1]
-              const nB = rgbaBuffer[neighborIndex + 2]
-
-              const gradient = Math.sqrt(
-                Math.pow(r - nR, 2) +
-                Math.pow(g - nG, 2) +
-                Math.pow(b - nB, 2)
-              )
-              
-              maxGradient = Math.max(maxGradient, gradient)
-            }
-            
-            isEdge = maxGradient > edgeThreshold
-          }
-
-          // Improved decision logic
-          const shouldKeep = colorDistance > colorThreshold || isEdge || maxGradient > edgeThreshold * 0.7
-
-          if (shouldKeep) {
-            // Keep pixel with full opacity
-            newBuffer[index] = r
-            newBuffer[index + 1] = g
-            newBuffer[index + 2] = b
-            newBuffer[index + 3] = 255
-          } else {
-            // Make background transparent with smooth transition
-            const alpha = Math.max(0, Math.min(255, (colorDistance / colorThreshold) * 255))
-            newBuffer[index] = r
-            newBuffer[index + 1] = g
-            newBuffer[index + 2] = b
-            newBuffer[index + 3] = Math.round(alpha)
-          }
-        }
-      }
-
-      // Apply additional post-processing for smoother edges
-      const processedBuffer = await sharp(newBuffer, {
-        raw: {
-          width: width!,
-          height: height!,
-          channels: 4
-        }
-      })
-      .png({ quality: 100 })
-      .toBuffer()
-
-      // Return the processed image
-      return new NextResponse(processedBuffer, {
-        status: 200,
+    const prediction = await response.json()
+    
+    // Poll for completion
+    let result
+    let attempts = 0
+    const maxAttempts = 60 // 5 minutes max wait time
+    
+    while (attempts < maxAttempts) {
+      const statusResponse = await fetch(prediction.urls.get, {
         headers: {
-          'Content-Type': 'image/png',
-          'Content-Disposition': `attachment; filename="no-bg-${file.name.replace(/\.[^/.]+$/, '')}.png"`,
-          'Cache-Control': 'no-cache',
+          'Authorization': `Token ${replicateApiToken}`,
         },
       })
-
-    } catch (processingError) {
-      console.error('Error processing image:', processingError)
-      return NextResponse.json({ 
-        error: 'Failed to process image. Please try with a different image.' 
-      }, { status: 500 })
+      
+      if (!statusResponse.ok) {
+        throw new Error('Failed to check background removal status')
+      }
+      
+      const status = await statusResponse.json()
+      
+      if (status.status === 'succeeded') {
+        result = status.output
+        break
+      } else if (status.status === 'failed') {
+        throw new Error('AI background removal failed')
+      }
+      
+      // Wait 5 seconds before next check
+      await new Promise(resolve => setTimeout(resolve, 5000))
+      attempts++
     }
+    
+    if (!result) {
+      throw new Error('Background removal timed out')
+    }
+
+    // Download the processed image
+    const imageResponse = await fetch(result)
+    if (!imageResponse.ok) {
+      throw new Error('Failed to download processed image')
+    }
+    
+    const processedBuffer = Buffer.from(await imageResponse.arrayBuffer())
+
+    // Return the processed image with transparent background
+    return new NextResponse(processedBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'image/png',
+        'Content-Disposition': `attachment; filename="no-bg-${file.name.replace(/\.[^/.]+$/, '')}.png"`,
+        'Cache-Control': 'no-cache',
+      },
+    })
 
   } catch (error) {
     console.error('Error in background removal API:', error)
     return NextResponse.json({ 
-      error: 'An unexpected error occurred' 
+      error: 'An unexpected error occurred during background removal' 
     }, { status: 500 })
   }
 }

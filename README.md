@@ -1,63 +1,57 @@
-# DocsAuraFlow - Free Online Document & Image Tools
+# DocsAuraFlow - Free Online Document & Image Processing Tools
 
-[![DocsAuraFlow](https://img.shields.io/badge/DocsAuraFlow-Free%20Online%20Tools-blue)](https://docsauraflow.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
-
-**DocsAuraFlow** is a comprehensive suite of free online tools for document and image processing. Convert PDF to Word, enhance images with AI upscaling, remove backgrounds, create professional resumes, and more - all without registration.
+A comprehensive suite of free online tools for document conversion, image processing, and AI-powered enhancements. Built with Next.js 14, TypeScript, and modern web technologies.
 
 ## 🚀 Features
 
-### 📄 Document Converters
-- **PDF to Word Converter** - Transform PDF files into editable Word documents
-- **Word to PDF Converter** - Convert Word documents to professional PDF format
+### Document Converters
+- **PDF to Word Converter** - Convert PDF files to editable Word documents with preserved formatting
+- **Word to PDF Converter** - Transform Word documents to PDF format
 - **Text to Word Converter** - Create Word documents from plain text
-- **PDF Form Filler** - Fill and edit PDF forms online
+- **PDF Form Filler** - Fill and edit PDF forms online with AI-powered field detection
 
-### 🖼️ Image Tools
-- **Image Converter** - Convert between JPG, PNG, GIF, WebP, and more formats
-- **AI Image Upscaler** - Enhance image quality with advanced AI technology
-- **Background Remover** - Remove backgrounds with precision using AI
-- **Image Editor** - Crop, resize, add filters, and customize images
+### Image Tools
+- **Image Converter** - Convert between all major image formats (JPG, PNG, WebP, GIF, etc.)
+- **AI Upscaler** - Enhance image quality using advanced AI algorithms (Real-ESRGAN)
+- **Background Remover** - Remove backgrounds with precision using AI technology (RemBG)
+- **Image Editor** - Professional image editing with real-time preview
 
-### 📋 Resume Builder
-- **Professional Templates** - Choose from modern, professional resume templates
-- **Custom Builder** - Build resumes from scratch with intuitive interface
-- **Export Options** - Download in multiple formats
+## ✨ Key Improvements
 
-## ✨ Key Benefits
+### Enhanced AI Features
+- **AI-Powered Upscaling**: Uses Real-ESRGAN model for superior image quality enhancement
+- **AI Background Removal**: Leverages RemBG for precise background removal with transparency
+- **Real-time Image Editing**: Live preview updates as you adjust settings
 
-- **100% Free** - No hidden costs or premium features
-- **No Registration** - Use all tools instantly without signing up
-- **Fast Processing** - Optimized algorithms for quick conversions
-- **High Quality** - Professional results with preserved formatting
-- **Secure** - Files are processed securely and deleted after conversion
-- **AI-Powered** - Advanced AI technology for image enhancement
-- **Cross-Platform** - Works on all devices and browsers
+### Improved User Experience
+- **Better Error Handling**: Comprehensive error messages and validation
+- **Real-time Previews**: See changes instantly in image editor
+- **Enhanced PDF Processing**: Better form field detection and text extraction
+- **Transparent Backgrounds**: Proper PNG output with alpha channels
+
+### Technical Enhancements
+- **Modern API Integration**: Uses Replicate API for AI-powered features
+- **Optimized Performance**: Debounced updates and efficient processing
+- **Better File Handling**: Improved validation and error recovery
+- **Enhanced SEO**: Comprehensive metadata and structured data
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: Next.js 14, React, TypeScript
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Image Processing**: Sharp, Canvas API
-- **PDF Processing**: pdf-parse, docx
-- **AI Integration**: Replicate API
+- **Image Processing**: Sharp, Replicate API
+- **PDF Processing**: pdf-lib, pdfjs-dist
+- **Document Processing**: docx
+- **AI Services**: Replicate API (Real-ESRGAN, RemBG)
 - **Deployment**: Vercel
-- **Analytics**: Google Analytics
-- **Ads**: Google AdSense
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/docsauraflow.git
-   cd docsauraflow
+   git clone https://github.com/yourusername/DocsAuraFlow.git
+   cd DocsAuraFlow
    ```
 
 2. **Install dependencies**
@@ -70,12 +64,10 @@
    cp env.example .env.local
    ```
    
-   Add your API keys to `.env.local`:
-   ```env
-   REPLICATE_API_TOKEN=your_replicate_token
-   GOOGLE_ANALYTICS_ID=your_ga_id
-   GOOGLE_ADSENSE_ID=your_adsense_id
-   ```
+   Configure the following variables:
+   - `REPLICATE_API_TOKEN`: Your Replicate API token for AI features
+   - `NEXT_PUBLIC_GA_ID`: Google Analytics ID (optional)
+   - `NEXT_PUBLIC_GOOGLE_ADSENSE_ID`: Google AdSense ID (optional)
 
 4. **Run the development server**
    ```bash
@@ -85,71 +77,32 @@
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 📁 Project Structure
+## 🔧 Environment Variables
 
-```
-docsauraflow/
-├── src/
-│   ├── app/                    # Next.js app directory
-│   │   ├── api/               # API routes
-│   │   ├── pdf-to-word/       # PDF to Word converter
-│   │   ├── word-to-pdf/       # Word to PDF converter
-│   │   ├── image-converter/   # Image format converter
-│   │   ├── ai-upscaler/       # AI image upscaler
-│   │   ├── remove-background/ # Background remover
-│   │   ├── resume-builder/    # Resume builder
-│   │   └── pdf-form-filler/   # PDF form filler
-│   ├── components/            # Reusable components
-│   └── lib/                   # Utility functions
-├── public/                    # Static assets
-└── docs/                      # Documentation
+```env
+# AI Features
+REPLICATE_API_TOKEN=your_replicate_api_token
+
+# Analytics (Optional)
+NEXT_PUBLIC_GA_ID=your_google_analytics_id
+NEXT_PUBLIC_GOOGLE_ADSENSE_ID=your_google_adsense_id
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+NEXT_PUBLIC_ENABLE_PREMIUM_FEATURES=false
 ```
 
-## 🔧 API Endpoints
+## 📦 Available Scripts
 
-### Document Conversion
-- `POST /api/convert/pdf-to-word` - Convert PDF to Word
-- `POST /api/convert/word-to-pdf` - Convert Word to PDF
-- `POST /api/convert/text-to-word` - Convert text to Word
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run type-check` - Run TypeScript type checking
+- `npm run seo:generate` - Generate SEO metadata
+- `npm run seo:validate` - Validate SEO configuration
 
-### Image Processing
-- `POST /api/convert/image` - Convert image formats
-- `POST /api/upscale-image` - AI image upscaling
-- `POST /api/remove-background` - Remove image backgrounds
-- `POST /api/edit-image` - Image editing operations
-
-### Resume Builder
-- `POST /api/generate-resume` - Generate resume from data
-
-### PDF Forms
-- `POST /api/fill-pdf-form` - Fill PDF forms
-- `POST /api/analyze-pdf-form` - Analyze PDF form fields
-
-## 🎯 SEO Optimization
-
-DocsAuraFlow is optimized for search engines with:
-
-- **Comprehensive Keywords**: Extensive keyword targeting for all tools
-- **Structured Data**: JSON-LD markup for better search understanding
-- **Meta Tags**: Optimized titles, descriptions, and Open Graph tags
-- **Sitemap**: Auto-generated XML sitemap for all pages
-- **Robots.txt**: Proper crawling instructions
-- **Fast Loading**: Optimized performance for better rankings
-- **Mobile-Friendly**: Responsive design for mobile search
-
-### Target Keywords
-- Primary: `DocsAuraFlow`, `docsauraflow`
-- Tools: `PDF to Word converter`, `AI image upscaler`, `background remover`
-- Features: `free online tools`, `no registration`, `document converter`
-- Benefits: `fast conversion`, `high quality`, `secure processing`
-
-## 📊 Analytics & Monetization
-
-- **Google Analytics**: Track user behavior and performance
-- **Google AdSense**: Monetize with contextual ads
-- **Performance Monitoring**: Real-time performance tracking
-
-## 🚀 Deployment
+## 🌐 Deployment
 
 ### Vercel (Recommended)
 1. Connect your GitHub repository to Vercel
@@ -159,49 +112,51 @@ DocsAuraFlow is optimized for search engines with:
 ### Manual Deployment
 ```bash
 npm run build
-npm start
+npm run start
 ```
+
+## 📊 SEO Optimization
+
+- **Comprehensive Metadata**: Each tool has optimized title, description, and keywords
+- **Structured Data**: JSON-LD schemas for better search engine understanding
+- **Sitemap**: Auto-generated sitemap with proper priorities
+- **Robots.txt**: Optimized crawling instructions
+- **Open Graph**: Social media sharing optimization
+- **Twitter Cards**: Enhanced Twitter sharing
+
+## 🔒 Security & Privacy
+
+- **No File Storage**: Files are processed in memory and deleted immediately
+- **Secure Processing**: All processing happens server-side
+- **No Registration**: No user accounts or data collection required
+- **HTTPS Only**: Secure connections enforced
+- **Input Validation**: Comprehensive file type and size validation
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 📄 License
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
-
-- **Website**: [https://docsauraflow.com](https://docsauraflow.com)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/docsauraflow/issues)
-- **Email**: support@docsauraflow.com
-
 ## 🙏 Acknowledgments
 
-- [Next.js](https://nextjs.org/) for the amazing framework
-- [Tailwind CSS](https://tailwindcss.com/) for styling
-- [Replicate](https://replicate.com/) for AI services
-- [Vercel](https://vercel.com/) for hosting
+- **Replicate** for AI model hosting
+- **Real-ESRGAN** for image upscaling
+- **RemBG** for background removal
+- **pdf-lib** for PDF processing
+- **Sharp** for image processing
+- **Next.js** team for the amazing framework
 
-## 📈 Roadmap
+## 📞 Support
 
-- [ ] Add more document formats (Excel, PowerPoint)
-- [ ] Implement batch processing
-- [ ] Add OCR functionality
-- [ ] Create mobile app
-- [ ] Add user accounts and history
-- [ ] Implement collaborative editing
-- [ ] Add more AI-powered features
+For support, email support@docsauraflow.com or create an issue in this repository.
 
 ---
 
-**DocsAuraFlow** - Your intelligent document and image processing assistant. Free, fast, and secure online tools for all your document and image needs.
-
-Made with ❤️ by the DocsAuraFlow Team
+**DocsAuraFlow** - Making document and image processing accessible to everyone! 🚀

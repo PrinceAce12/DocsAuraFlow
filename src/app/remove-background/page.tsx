@@ -156,7 +156,7 @@ export default function RemoveBackground() {
                 fileName={`no-bg-${file?.name?.replace(/\.[^/.]+$/, '')}.png`}
                 onReset={handleReset}
                 title="Background Removed Successfully!"
-                description="Your image with transparent background is ready for download."
+                description="Your image with transparent background is ready for download. The background has been completely removed and replaced with transparency."
               />
             )}
           </div>
